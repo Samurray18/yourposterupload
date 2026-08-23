@@ -1,6 +1,5 @@
 import { motion, type Variants } from "framer-motion"
-import { ArrowRight, Lock, ShieldCheck, Zap } from "lucide-react"
-import { SnapGhost } from "./SnapGhost"
+import { ArrowRight, Gift, Lock, ShieldCheck, Zap } from "lucide-react"
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
@@ -13,11 +12,11 @@ const stagger: Variants = {
 }
 
 const bubbles = [
-  { text: "Remember this?", delay: "0s", left: "0%", bottom: "62%", float: 6 },
-  { text: "omg I miss those convos 😭", delay: "1.6s", left: "34%", bottom: "70%", float: 8 },
-  { text: "we were so funny", delay: "3.2s", left: "6%", bottom: "40%", float: 5 },
-  { text: "do you still have the streak?", delay: "2.4s", left: "58%", bottom: "46%", float: 7 },
-  { text: "let's recover them 🧡", delay: "4s", left: "30%", bottom: "22%", float: 6 },
+  { text: "Gifted you Snapchat+ 💛", delay: "0s", left: "0%", bottom: "62%", float: 6 },
+  { text: "omg thank you!! 😍", delay: "1.6s", left: "34%", bottom: "70%", float: 8 },
+  { text: "check your Snapchat ✨", delay: "3.2s", left: "6%", bottom: "40%", float: 5 },
+  { text: "you're my #1 best friend 🪐", delay: "2.4s", left: "52%", bottom: "46%", float: 7 },
+  { text: "12 months unlocked 🎁", delay: "4s", left: "28%", bottom: "22%", float: 6 },
 ]
 
 function PhoneMockup() {
@@ -56,27 +55,25 @@ function PhoneMockup() {
         <div className="space-y-3 p-5 pt-9">
           <div className="flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-snap text-[#0b0b10]">
-              <SnapGhost className="h-4 w-4" />
+              <Gift className="h-4 w-4" />
             </span>
             <div>
-              <p className="text-[0.65rem] font-bold text-white">Alex</p>
-              <p className="text-[0.6rem] text-green-400">● recovered</p>
+              <p className="text-[0.65rem] font-bold text-white">Snapchat+ Gift</p>
+              <p className="text-[0.6rem] text-green-400">● delivered instantly</p>
             </div>
           </div>
-          <div className="max-w-[80%] rounded-2xl rounded-tl-sm bg-[#26262e] px-3 py-2 text-xs text-white/85">
-            hey you online?
-          </div>
-          <div className="ml-auto max-w-[80%] rounded-2xl rounded-tr-sm bg-snap px-3 py-2 text-xs font-medium text-[#0b0b10]">
-            yeah! finally got my old dms back 😍
+          <div className="rounded-2xl bg-gradient-to-br from-snap to-yellow-400 p-3 text-[#0b0b10]">
+            <p className="text-xs font-black">You gifted 3 Months 🎉</p>
+            <p className="mt-1 text-[0.65rem] font-medium opacity-80">To @maya.2020 · Custom app icons + Planet system 🪐</p>
           </div>
           <div className="max-w-[80%] rounded-2xl rounded-tl-sm bg-[#26262e] px-3 py-2 text-xs text-white/85">
-            omg send me the screenshots
+            no way you got me Plus 😭💛
           </div>
           <div className="ml-auto max-w-[80%] rounded-2xl rounded-tr-sm bg-snap px-3 py-2 text-xs font-medium text-[#0b0b10]">
-            done, 2019 memories unlocked 📸
+            enjoy your planets bestie 🪐✨
           </div>
           <div className="pt-1 text-center text-[0.6rem] text-white/40">
-            Recovered · 128 messages
+            Gift ID #SC-4928 · $10.99
           </div>
         </div>
       </motion.div>
@@ -105,26 +102,25 @@ export function Hero() {
             className="inline-flex items-center gap-2 rounded-full border border-snap/30 bg-snap/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-snap"
           >
             <Zap className="h-3.5 w-3.5 fill-current" />
-            Old messages, back in minutes
+            Gift Snapchat+ in seconds
           </motion.span>
 
           <motion.h1
             variants={fadeUp}
             className="mt-6 text-5xl font-black leading-[0.98] tracking-tight text-white sm:text-6xl lg:text-7xl"
           >
-            Recover your{" "}
+            Gift{" "}
             <span className="bg-gradient-to-r from-snap via-yellow-300 to-snap-deep bg-clip-text text-transparent">
-              old Snapchat
+              Snapchat+
             </span>{" "}
-            DMs
+            to your friends
           </motion.h1>
 
           <motion.p
             variants={fadeUp}
             className="mt-6 max-w-lg text-base leading-relaxed text-white/60 sm:text-lg"
           >
-            Conversations, streaks, photos and memes that vanished years ago — rebuilt from your
-            own device data. Private, secure, and no Snapchat account access required.
+            Surprise your best friends with a Snapchat+ subscription — planets, custom icons, story rewatch indicators and every premium perk, delivered instantly.
           </motion.p>
 
           <motion.div variants={fadeUp} className="mt-9 flex flex-wrap items-center gap-4">
@@ -132,7 +128,7 @@ export function Hero() {
               href="#tool"
               className="group inline-flex items-center gap-2 rounded-full bg-snap px-8 py-3.5 text-base font-extrabold text-[#0b0b10] shadow-[0_0_40px_-8px_rgba(255,252,0,0.9)] transition-all hover:shadow-[0_0_55px_-6px_rgba(255,252,0,1)] hover:brightness-110"
             >
-              Try free recovery
+              Send a gift
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </a>
             <a
@@ -148,9 +144,9 @@ export function Hero() {
             className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3"
           >
             {[
-              { icon: Lock, label: "100% private" },
-              { icon: ShieldCheck, label: "On your device" },
-              { icon: Zap, label: "No Snapchat access" },
+              { icon: Gift, label: "Instant delivery" },
+              { icon: ShieldCheck, label: "Secure payment" },
+              { icon: Lock, label: "No password needed" },
             ].map(({ icon: Icon, label }) => (
               <span key={label} className="flex items-center gap-2 text-sm text-white/50">
                 <Icon className="h-4 w-4 text-snap" />
@@ -166,9 +162,9 @@ export function Hero() {
       <div className="relative border-y border-white/5 bg-white/[0.02]">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-10 text-center sm:px-6 md:grid-cols-4">
           {[
-            { value: "2.4M+", label: "Messages recovered" },
-            { value: "98%", label: "Recovery success rate" },
-            { value: "31K", label: "Conversations restored" },
+            { value: "45K+", label: "Gifts sent" },
+            { value: "99%", label: "Instant delivery rate" },
+            { value: "12K", label: "Happy recipients" },
             { value: "4.9★", label: "Average rating" },
           ].map((s, i) => (
             <motion.div

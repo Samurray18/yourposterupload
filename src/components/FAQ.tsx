@@ -4,24 +4,24 @@ import { useState } from "react"
 
 const faqs = [
   {
-    q: "Is this really possible? Snapchat deletes messages.",
-    a: "Snapchat removes messages from its servers, but fragments often remain in your device's local app data, caches and backups. Our scan finds and rebuilds those fragments into readable conversations.",
+    q: "How does Snapchat+ gifting work?",
+    a: "Enter your friend's Snapchat username, pick a plan (1, 3, 6 or 12 months) and add an optional gift message. We process the payment securely and deliver the Snapchat+ entitlement directly to their account — they get notified on Snapchat and can activate in one tap.",
   },
   {
-    q: "Do I need my Snapchat password or account access?",
-    a: "No. The entire scan works with data already stored on your own device. We never ask for, or use, your Snapchat login credentials.",
+    q: "Does my friend need to accept the gift?",
+    a: "Yes — they get a notification that you gifted them Snapchat+. One tap to claim and the subscription is active. If they already have Plus, the gifted time is added on top — nothing is wasted.",
   },
   {
-    q: "Are my recovered messages sent to your servers?",
-    a: "Never. Everything runs locally on your device in your browser. Your chats never leave your machine, and nothing is uploaded or stored by us.",
+    q: "What payment methods do you accept?",
+    a: "We accept all major cards, Apple Pay and Google Pay. All payments are encrypted with Stripe-level security. We never ask for your Snapchat password.",
   },
   {
-    q: "Does it work on iPhone and Android?",
-    a: "The recovery tool works in any modern browser on any device — phone, tablet or computer. Scan results depend on what local data is available on the device you scan.",
+    q: "Can I schedule a gift or get a refund?",
+    a: "You can send instantly or schedule for a future date (perfect for birthdays). Gifts are refundable if unclaimed within 14 days. Once claimed, the time is added to their Snapchat+ and can't be reversed.",
   },
   {
-    q: "How long does a scan take?",
-    a: "Most scans finish in under a minute. Larger data sets with many media files can take slightly longer, but you'll see live progress the whole way.",
+    q: "Is this official Snapchat+?",
+    a: "Yes — the recipient gets 100% official Snapchat+ with all perks: Solar System / Planet friends, custom app icons, story rewatch indicator, custom notification sounds, priority support and more. Snapchat+ Gifter is not affiliated with Snap Inc., but delivers official entitlements.",
   },
 ]
 

@@ -1,45 +1,44 @@
 import { motion } from "framer-motion"
 import {
-  Camera,
-  FileSearch,
-  Ghost,
+  Clock,
+  Gift,
+  Globe,
   Heart,
-  MessageSquareText,
   ShieldCheck,
   Sparkles,
-  Timer,
+  Star,
 } from "lucide-react"
 
 const features = [
   {
-    icon: MessageSquareText,
-    title: "Full DM history",
-    desc: "Every chat you thought was gone — recovered in chronological order, including deleted threads.",
+    icon: Gift,
+    title: "Instant gifting",
+    desc: "Your gift is delivered within seconds — the recipient gets notified directly on Snapchat.",
   },
   {
-    icon: Camera,
-    title: "Photos & videos",
-    desc: "Screenshots, snaps and media attachments that expired years ago, pulled back from device caches.",
-  },
-  {
-    icon: Timer,
-    title: "Streaks restored",
-    desc: "See your longest streaks and old best friends lists rebuilt from recovered interaction data.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Privacy first",
-    desc: "Everything runs locally on your device. We never see, store, or transmit your chats.",
-  },
-  {
-    icon: FileSearch,
-    title: "Deep scan engine",
-    desc: "Our recovery engine searches app caches, backups and database remnants most tools miss.",
+    icon: Star,
+    title: "All Plus perks",
+    desc: "Planets, custom app icons, story rewatch count, custom notification sounds & more.",
   },
   {
     icon: Heart,
-    title: "Old memories",
-    desc: "Reconnect with conversations and people you thought you'd never hear from again.",
+    title: "Personal message",
+    desc: "Add a custom gift note that appears with the Snapchat+ delivery.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Secure payment",
+    desc: "Pay safely with Apple Pay, Google Pay or card. Encrypted and private — we never store passwords.",
+  },
+  {
+    icon: Clock,
+    title: "Schedule a gift",
+    desc: "Send now or schedule for a birthday — we'll deliver exactly on time.",
+  },
+  {
+    icon: Globe,
+    title: "Works worldwide",
+    desc: "Gift Snapchat+ to any username in any country. No region limits.",
   },
 ]
 
@@ -55,17 +54,16 @@ export function Features() {
       >
         <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-white/60">
           <Sparkles className="h-3.5 w-3.5 text-snap" />
-          Features
+          Why gift Plus?
         </span>
         <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
-          Everything you lost,{" "}
+          More than a gift,{" "}
           <span className="bg-gradient-to-r from-snap to-snap-deep bg-clip-text text-transparent">
-            found
+            it's a flex
           </span>
         </h2>
         <p className="mt-4 text-base leading-relaxed text-white/55">
-          SnapRecover digs through the data already on your phone to bring back the messages you
-          thought were deleted forever.
+          Snapchat+ Gifter is the fastest way to give premium Snapchat+ — planets, priority features and exclusive customizations in one tap.
         </p>
       </motion.div>
 
@@ -96,10 +94,9 @@ export function Features() {
         transition={{ duration: 0.8 }}
         className="mt-14 flex flex-col items-center justify-center gap-3 rounded-3xl border border-white/10 bg-gradient-to-r from-snap/10 via-white/5 to-snap-red/10 p-8 text-center sm:flex-row sm:gap-5"
       >
-        <Ghost className="h-10 w-10 shrink-0 text-snap" />
+        <Gift className="h-10 w-10 shrink-0 text-snap" />
         <p className="max-w-xl text-base text-white/70">
-          <span className="font-bold text-white">Heads up:</span> recovery works best when you have
-          the Snapchat app installed — our scan reads the local data it leaves behind.
+          <span className="font-bold text-white">Heads up:</span> Snapchat+ gifts stack — if they already have Plus, we extend their subscription. No waste.
         </p>
       </motion.div>
     </section>

@@ -5,7 +5,7 @@ import { SnapGhost } from "./SnapGhost"
 const links = [
   { href: "#features", label: "Features" },
   { href: "#how-it-works", label: "How it works" },
-  { href: "#tool", label: "Recovery tool" },
+  { href: "#tool", label: "Gift tool" },
   { href: "#faq", label: "FAQ" },
 ]
 
@@ -20,7 +20,7 @@ export function Navbar() {
             <SnapGhost className="h-5 w-5" />
           </span>
           <span className="text-lg font-extrabold tracking-tight text-white">
-            Snap<span className="text-snap">Recover</span>
+            Snapchat<span className="text-snap">+ Gifter</span>
           </span>
         </a>
 
@@ -41,7 +41,7 @@ export function Navbar() {
             href="#tool"
             className="rounded-full bg-snap px-5 py-2 text-sm font-bold text-[#0b0b10] shadow-[0_0_28px_-6px_rgba(255,252,0,0.8)] transition-all hover:brightness-110"
           >
-            Start recovery
+            Send a gift
           </a>
         </div>
 
@@ -72,7 +72,7 @@ export function Navbar() {
             onClick={() => setOpen(false)}
             className="mt-2 block rounded-full bg-snap px-5 py-2.5 text-center text-sm font-bold text-[#0b0b10]"
           >
-            Start recovery
+            Send a gift
           </a>
         </div>
       )}

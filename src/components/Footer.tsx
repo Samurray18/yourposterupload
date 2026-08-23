@@ -12,16 +12,15 @@ export function Footer() {
                 <SnapGhost className="h-5 w-5" />
               </span>
               <span className="text-lg font-extrabold tracking-tight text-white">
-                Snap<span className="text-snap">Recover</span>
+                Snapchat<span className="text-snap">+ Gifter</span>
               </span>
             </a>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/50">
-              Recover the Snapchat messages you thought were gone forever. Private, on-device, and
-              designed to bring back your memories.
+              Gift Snapchat+ to anyone — instant delivery, secure payment, and a personal message. The perfect flex for your best friends.
             </p>
             <div className="mt-5 flex items-center gap-2 text-xs text-white/40">
               <Lock className="h-3.5 w-3.5 text-snap" />
-              All scans run locally · Nothing is uploaded
+              Secure checkout · Instant delivery · No password needed
             </div>
           </div>
 
@@ -31,7 +30,7 @@ export function Footer() {
               {[
                 { label: "Features", href: "#features" },
                 { label: "How it works", href: "#how-it-works" },
-                { label: "Recovery tool", href: "#tool" },
+                { label: "Gift tool", href: "#tool" },
                 { label: "FAQ", href: "#faq" },
               ].map((l) => (
                 <li key={l.href}>
@@ -56,13 +55,13 @@ export function Footer() {
             </ul>
             <div className="mt-6 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-xs text-white/40">
               <MessageSquare className="h-4 w-4 shrink-0 text-snap" />
-              Recovered 2.4M+ messages so far
+              45K+ Snapchat+ gifts sent so far
             </div>
           </div>
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/5 pt-6 text-xs text-white/35 sm:flex-row">
-          <p>© {new Date().getFullYear()} SnapRecover. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Snapchat+ Gifter. All rights reserved.</p>
           <p className="flex items-center gap-1.5">
             <Ghost className="h-3.5 w-3.5" />
             Not affiliated with Snap Inc.

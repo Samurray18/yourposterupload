@@ -98,3 +98,17 @@ iframe {
   background: #fffc00;
   color: #0b0b10;
 }
+
+/* Hide Lovable "Edit with Lovable" badge injected by hosting */
+#lovable-badge,
+[data-lovable-badge],
+a[href*="lovable.dev"],
+a[href*="lovable.app"],
+iframe[src*="lovable"],
+div[id*="lovable"],
+div[class*="lovable"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

@@ -167,7 +167,7 @@ export function GiftRedeem() {
                         setCode(e.target.value.toUpperCase())
                         setError("")
                       }}
-                      placeholder="e.g. YX11D8"
+                      placeholder=""
                       autoComplete="off"
                       spellCheck={false}
                       className={`h-14 w-full rounded-2xl border bg-white/5 px-5 py-3.5 font-mono text-lg font-bold tracking-[0.2em] text-white placeholder:font-sans placeholder:text-sm placeholder:font-normal placeholder:tracking-normal placeholder:text-white/30 outline-none transition-colors focus:ring-2 ${

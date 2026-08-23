@@ -23,26 +23,28 @@ function PhoneMockup() {
   return (
     <motion.div
       variants={fadeUp}
-      className="relative mx-auto w-full max-w-[19rem]"
+      className="relative mx-auto w-full max-w-[16rem] sm:max-w-[19rem]"
       aria-hidden="true"
     >
-      {bubbles.map((b) => (
-        <motion.div
-          key={b.text}
-          className="absolute z-0"
-          style={{ left: b.left, bottom: b.bottom }}
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: parseFloat(b.delay) + 0.6, duration: 0.5 }}
-        >
-          <div
-            className="whitespace-nowrap rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs font-medium text-white/80 shadow-xl backdrop-blur-md"
-            style={{ animation: `float ${b.float}s ease-in-out infinite` }}
+      <div className="hidden sm:block">
+        {bubbles.map((b) => (
+          <motion.div
+            key={b.text}
+            className="absolute z-0"
+            style={{ left: b.left, bottom: b.bottom }}
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: parseFloat(b.delay) + 0.6, duration: 0.5 }}
           >
-            {b.text}
-          </div>
-        </motion.div>
-      ))}
+            <div
+              className="whitespace-nowrap rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs font-medium text-white/80 shadow-xl backdrop-blur-md"
+              style={{ animation: `float ${b.float}s ease-in-out infinite` }}
+            >
+              {b.text}
+            </div>
+          </motion.div>
+        ))}
+      </div>
 
       <motion.div
         className="relative z-10 rounded-[2.4rem] border-[6px] border-zinc-800 bg-[#16161c] shadow-2xl"
@@ -95,11 +97,11 @@ export function Hero() {
         />
       </div>
 
-      <div className="relative mx-auto grid max-w-6xl items-center gap-16 px-4 pb-20 pt-16 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:pt-24">
+      <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pb-14 pt-12 sm:gap-16 sm:px-6 sm:pb-20 sm:pt-16 lg:grid-cols-[1.1fr_0.9fr] lg:pt-24">
         <motion.div variants={stagger} initial="hidden" animate="show">
           <motion.span
             variants={fadeUp}
-            className="inline-flex items-center gap-2 rounded-full border border-snap/30 bg-snap/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-snap"
+            className="inline-flex items-center gap-2 rounded-full border border-snap/30 bg-snap/10 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-snap sm:px-4 sm:text-xs"
           >
             <Zap className="h-3.5 w-3.5 fill-current" />
             Gift Snapchat+ in seconds
@@ -107,7 +109,7 @@ export function Hero() {
 
           <motion.h1
             variants={fadeUp}
-            className="mt-6 text-5xl font-black leading-[0.98] tracking-tight text-white sm:text-6xl lg:text-7xl"
+            className="mt-6 text-4xl font-black leading-[0.98] tracking-tight text-white xs:text-5xl sm:text-6xl lg:text-7xl"
           >
             Gift{" "}
             <span className="bg-gradient-to-r from-snap via-yellow-300 to-snap-deep bg-clip-text text-transparent">
@@ -123,17 +125,17 @@ export function Hero() {
             Surprise your best friends with a Snapchat+ subscription — planets, custom icons, story rewatch indicators and every premium perk, delivered instantly.
           </motion.p>
 
-          <motion.div variants={fadeUp} className="mt-9 flex flex-wrap items-center gap-4">
+          <motion.div variants={fadeUp} className="mt-8 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
             <a
               href="#tool"
-              className="group inline-flex items-center gap-2 rounded-full bg-snap px-8 py-3.5 text-base font-extrabold text-[#0b0b10] shadow-[0_0_40px_-8px_rgba(255,252,0,0.9)] transition-all hover:shadow-[0_0_55px_-6px_rgba(255,252,0,1)] hover:brightness-110"
+              className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-snap px-8 py-3.5 text-base font-extrabold text-[#0b0b10] shadow-[0_0_40px_-8px_rgba(255,252,0,0.9)] transition-all hover:shadow-[0_0_55px_-6px_rgba(255,252,0,1)] hover:brightness-110 sm:w-auto"
             >
               Send a gift
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </a>
             <a
               href="#redeem"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-7 py-3.5 text-base font-semibold text-white/80 backdrop-blur transition-colors hover:border-white/30 hover:text-white"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-7 py-3.5 text-base font-semibold text-white/80 backdrop-blur transition-colors hover:border-white/30 hover:text-white sm:w-auto"
             >
               Receive a gift
             </a>
@@ -160,7 +162,7 @@ export function Hero() {
       </div>
 
       <div className="relative border-y border-white/5 bg-white/[0.02]">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-10 text-center sm:px-6 md:grid-cols-4">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 px-4 py-8 text-center sm:gap-6 sm:px-6 sm:py-10 md:grid-cols-4">
           {[
             { value: "45K+", label: "Gifts sent" },
             { value: "99%", label: "Instant delivery rate" },

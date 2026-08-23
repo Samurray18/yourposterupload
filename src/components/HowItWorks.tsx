@@ -26,7 +26,7 @@ export function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      className="relative scroll-mt-24 overflow-hidden border-y border-white/5 bg-white/[0.02] py-24"
+      className="relative scroll-mt-24 overflow-hidden border-y border-white/5 bg-white/[0.02] py-16 sm:py-24"
     >
       <div className="pointer-events-none absolute left-1/2 top-0 h-72 w-[40rem] -translate-x-1/2 rounded-full bg-snap/5 blur-3xl" />
 
@@ -41,7 +41,7 @@ export function HowItWorks() {
           <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-white/60">
             How it works
           </span>
-          <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
+          <h2 className="mt-5 text-3xl sm:text-4xl font-black tracking-tight text-white sm:text-5xl">
             Three taps to{" "}
             <span className="bg-gradient-to-r from-snap to-snap-deep bg-clip-text text-transparent">
               gift Plus

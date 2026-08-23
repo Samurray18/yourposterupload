@@ -9,7 +9,7 @@ import { RecoveryTool } from "./components/RecoveryTool"
 
 function App() {
   return (
-    <div className="min-h-screen bg-[#0b0b10] font-sans text-white antialiased">
+    <div className="min-h-screen overflow-x-hidden bg-[#0b0b10] font-sans text-white antialiased">
       <Navbar />
       <main>
         <Hero />

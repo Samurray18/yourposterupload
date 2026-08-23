@@ -96,7 +96,7 @@ export function GiftRedeem() {
   }
 
   return (
-    <section id="redeem" className="relative mx-auto max-w-3xl scroll-mt-24 px-4 py-24 sm:px-6">
+    <section id="redeem" className="relative mx-auto max-w-3xl scroll-mt-24 px-4 py-16 sm:py-24 sm:px-6">
       <div className="pointer-events-none absolute -top-10 left-1/2 h-64 w-[36rem] -translate-x-1/2 rounded-full bg-snap/5 blur-3xl" />
 
       <motion.div
@@ -111,7 +111,7 @@ export function GiftRedeem() {
             <Ticket className="h-3.5 w-3.5" />
             Receive a gift
           </span>
-          <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
+          <h2 className="mt-5 text-3xl sm:text-4xl font-black tracking-tight text-white sm:text-5xl">
             Enter your{" "}
             <span className="bg-gradient-to-r from-snap to-snap-deep bg-clip-text text-transparent">
               gift code
@@ -137,7 +137,7 @@ export function GiftRedeem() {
             </span>
           </div>
 
-          <div className="p-6 sm:p-8">
+          <div className="p-4 sm:p-8">
             <AnimatePresence mode="wait">
               {!redeemed ? (
                 <motion.form

@@ -44,7 +44,7 @@ const features = [
 
 export function Features() {
   return (
-    <section id="features" className="relative mx-auto max-w-6xl scroll-mt-24 px-4 py-24 sm:px-6">
+    <section id="features" className="relative mx-auto max-w-6xl scroll-mt-24 px-4 py-16 sm:px-6 sm:py-24">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -56,10 +56,10 @@ export function Features() {
           <Sparkles className="h-3.5 w-3.5 text-snap" />
           Why gift Plus?
         </span>
-        <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
+        <h2 className="mt-5 text-3xl font-black tracking-tight text-white sm:text-5xl">
           More than a gift,{" "}
           <span className="bg-gradient-to-r from-snap to-snap-deep bg-clip-text text-transparent">
-            it's a flex
+            it&apos;s a flex
           </span>
         </h2>
         <p className="mt-4 text-base leading-relaxed text-white/55">

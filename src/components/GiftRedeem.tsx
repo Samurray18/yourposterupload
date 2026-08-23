@@ -510,7 +510,7 @@ export function GiftRedeem() {
                             className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-snap px-4 py-3 text-sm font-extrabold text-[#0b0b10] hover:brightness-110"
                           >
                             <ExternalLink className="h-4 w-4" />
-                            Claim on Snapchat
+                            Claim the Plus
                           </a>
                           <button
                             onClick={handleCopy}

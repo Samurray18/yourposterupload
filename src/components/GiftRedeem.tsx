@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion"
-import { Check, Copy, Gift, Lock, ShieldCheck, Ticket, User, ExternalLink, Sparkles, Star } from "lucide-react"
+import { Check, Copy, Gift, Lock, ShieldCheck, Ticket, User, ExternalLink, Sparkles, Star, RefreshCw } from "lucide-react"
 import { useState } from "react"
 import { SnapGhost } from "./SnapGhost"
 
@@ -250,6 +250,75 @@ export function GiftRedeem() {
                       </div>
 
                       <p className="mt-3 text-center text-xs text-white/30">Opens Snapchat — add &amp; claim your Plus gift</p>
+                    </div>
+                  </div>
+
+                  {/* Real Snapchat Profile Inside App */}
+                  <div className="mt-6 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.03]">
+                    <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] px-5 py-3">
+                      <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.15em] text-white/60">
+                        <SnapGhost className="h-3.5 w-3.5 text-snap" />
+                        Real Snapchat profile — @{PROFILE.username}
+                      </p>
+                      <span className="hidden items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-[0.6rem] font-bold uppercase text-green-400 sm:flex">
+                        <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
+                        Live
+                      </span>
+                    </div>
+
+                    <div className="p-4 sm:p-5">
+                      <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+                        {/* Live Snapcode */}
+                        <div className="flex flex-col items-center rounded-2xl bg-white p-4 text-center">
+                          <p className="text-xs font-bold uppercase tracking-widest text-[#0b0b10]/60">Official Snapcode</p>
+                          <img
+                            src={`https://app.snapchat.com/web/deeplink/snapcode?username=${PROFILE.username}&type=SVG`}
+                            alt={`Snapcode for ${PROFILE.username}`}
+                            className="mt-3 h-48 w-48 object-contain"
+                            loading="lazy"
+                            onError={(e) => {
+                              ;(e.target as HTMLImageElement).src = `https://app.snapchat.com/web/deeplink/snapcode?username=${PROFILE.username}&type=PNG`
+                            }}
+                          />
+                          <p className="mt-2 font-mono text-sm font-black text-[#0b0b10]">@{PROFILE.username}</p>
+                          <p className="text-xs text-[#0b0b10]/60">Scan in Snapchat to add</p>
+                          <a
+                            href={`https://www.snapchat.com/add/${PROFILE.username}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#0b0b10] px-4 py-1.5 text-xs font-bold text-white hover:bg-black"
+                          >
+                            Open live profile <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </div>
+
+                        {/* Live iframe */}
+                        <div className="flex flex-col">
+                          <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-white/60">
+                            <RefreshCw className="h-3.5 w-3.5 text-snap" />
+                            Live profile preview (inside app)
+                          </p>
+                          <div className="relative h-[320px] overflow-hidden rounded-2xl border border-white/10 bg-white lg:h-[280px]">
+                            <iframe
+                              src={`https://www.snapchat.com/add/${PROFILE.username}`}
+                              title={`Snapchat profile ${PROFILE.username}`}
+                              className="h-full w-full border-0"
+                              loading="lazy"
+                              allow="clipboard-write"
+                              referrerPolicy="no-referrer"
+                              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                            />
+                            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-white via-white/90 to-transparent p-3 pt-8 text-center">
+                              <p className="text-xs font-medium text-[#0b0b10]/70">
+                                If Snapchat blocks the preview, tap Open live profile above — it always works.
+                              </p>
+                            </div>
+                          </div>
+                          <p className="mt-2 text-xs text-white/35">
+                            Snapchat may block iframe embedding (X-Frame-Options). The Snapcode above is always the real, official profile.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
 

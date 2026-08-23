@@ -132,7 +132,7 @@ export function Hero() {
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
             </a>
             <a
-              href="#tool"
+              href="#redeem"
               className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-7 py-3.5 text-base font-semibold text-white/80 backdrop-blur transition-colors hover:border-white/30 hover:text-white"
             >
               Receive a gift

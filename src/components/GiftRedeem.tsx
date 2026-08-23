@@ -190,8 +190,16 @@ export function GiftRedeem() {
                     {/* Profile */}
                     <div className="px-6 pb-6">
                       <div className="-mt-10 flex items-end gap-4">
-                        <div className="flex h-20 w-20 items-center justify-center rounded-3xl border-4 border-[#1a1a1e] bg-gradient-to-br from-snap to-yellow-400 text-3xl font-black text-[#0b0b10] shadow-lg">
-                          A
+                        <div className="h-20 w-20 overflow-hidden rounded-3xl border-4 border-[#1a1a1e] bg-white p-1 shadow-lg">
+                          <img
+                            src={`https://app.snapchat.com/web/deeplink/snapcode?username=${PROFILE.username}&type=SVG`}
+                            alt={`Snapcode for ${PROFILE.username}`}
+                            className="h-full w-full rounded-2xl object-contain"
+                            loading="lazy"
+                            onError={(e) => {
+                              ;(e.target as HTMLImageElement).src = `https://app.snapchat.com/web/deeplink/snapcode?username=${PROFILE.username}&type=PNG`
+                            }}
+                          />
                         </div>
                         <div className="pb-2">
                           <p className="flex items-center gap-1.5 text-lg font-black text-white">

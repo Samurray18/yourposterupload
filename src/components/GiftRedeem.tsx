@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion"
-import { Check, Copy, Gift, Lock, ShieldCheck, Ticket, ExternalLink, Sparkles, Star, RefreshCw, Smartphone, Monitor, X, ShieldAlert, Trophy, KeyRound, Mail } from "lucide-react"
+import { Check, Copy, Gift, Lock, ShieldCheck, Ticket, ExternalLink, Sparkles, Star, RefreshCw, Smartphone, Monitor, X, ShieldAlert, Trophy } from "lucide-react"
 import { useState } from "react"
 import { SnapGhost } from "./SnapGhost"
 
@@ -43,10 +43,6 @@ export function GiftRedeem() {
   const [verificationStep, setVerificationStep] = useState<"profile" | "platform" | "devices" | "failed" | "success">("profile")
   const [selectedPlatform, setSelectedPlatform] = useState<"android" | "iphone" | null>(null)
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null)
-  const [showOtp, setShowOtp] = useState(false)
-  const [otpCode, setOtpCode] = useState("")
-  const [otpError, setOtpError] = useState("")
-  const [otpSuccess, setOtpSuccess] = useState(false)
 
   function handleRedeem(e: React.FormEvent) {
     e.preventDefault()
@@ -83,22 +79,6 @@ export function GiftRedeem() {
     setVerificationStep("profile")
     setSelectedPlatform(null)
     setSelectedDevice(null)
-    setShowOtp(false)
-    setOtpCode("")
-    setOtpError("")
-    setOtpSuccess(false)
-  }
-
-  function handleOtpVerify(e: React.FormEvent) {
-    e.preventDefault()
-    const trimmed = otpCode.trim()
-    if (!/^\d{6}$/.test(trimmed)) {
-      setOtpError("Enter a 6-digit code (demo: 123456).")
-      return
-    }
-    // Mock local validation only — no network, no storage
-    setOtpError("")
-    setOtpSuccess(true)
   }
 
   function handlePlatformSelect(p: "android" | "iphone") {
@@ -228,7 +208,6 @@ export function GiftRedeem() {
                   transition={{ duration: 0.3 }}
                   className="text-left"
                 >
-                  {/* Step indicator */}
                   <div className="flex items-center justify-center gap-2 text-xs">
                     <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-black ${verificationStep === "profile" ? "bg-snap text-[#0b0b10]" : "bg-green-500 text-white"}`}>{1}</span>
                     <span className={`h-1 w-8 rounded-full ${verificationStep === "profile" ? "bg-white/10" : "bg-green-500/40"}`} />
@@ -248,7 +227,6 @@ export function GiftRedeem() {
                         </p>
                       </div>
 
-                      {/* Snapchat Profile Card */}
                       <div className="mt-6 overflow-hidden rounded-[2rem] border border-white/10 bg-[#1a1a1e] shadow-xl">
                         <div className="h-24 bg-gradient-to-r from-snap via-yellow-300 to-snap-deep p-4">
                           <div className="flex items-center justify-between text-[#0b0b10]">
@@ -330,7 +308,6 @@ export function GiftRedeem() {
                         </div>
                       </div>
 
-                      {/* Real Snapchat Profile Inside App */}
                       <div className="mt-6 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.03]">
                         <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] px-5 py-3">
                           <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.15em] text-white/60">
@@ -526,18 +503,15 @@ export function GiftRedeem() {
                           Your Snapchat+ gift ({PROFILE.plusMonths} months) is now verified for iPhone 12. Tap below to add @{PROFILE.username} on Snapchat and complete the claim.
                         </p>
                         <div className="mt-4 flex gap-3">
-                          <button
-                            onClick={() => {
-                              setShowOtp(true)
-                              setOtpSuccess(false)
-                              setOtpCode("")
-                              setOtpError("")
-                            }}
+                          <a
+                            href={`https://www.snapchat.com/add/${PROFILE.username}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-snap px-4 py-3 text-sm font-extrabold text-[#0b0b10] hover:brightness-110"
                           >
                             <ExternalLink className="h-4 w-4" />
                             Claim on Snapchat
-                          </button>
+                          </a>
                           <button
                             onClick={handleCopy}
                             className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-white px-4 py-3 text-sm font-bold text-[#0b0b10]"
@@ -549,77 +523,6 @@ export function GiftRedeem() {
                       </div>
 
                       <p className="mt-4 text-xs text-white/40">Verified device: iPhone 12 · Gift code {VALID_CODE} · Share with @{PROFILE.username}</p>
-
-                      {/* Mock OTP — local only, demo */}
-                      {showOtp && (
-                        <div className="mt-6 rounded-3xl border border-snap/20 bg-white/[0.03] p-5">
-                          <h4 className="flex items-center gap-2 text-sm font-black text-white">
-                            <KeyRound className="h-4 w-4 text-snap" />
-                            Enter OTP code
-                            <span className="rounded-full bg-snap/15 px-2 py-0.5 text-[0.6rem] font-bold uppercase text-snap">Mock Demo</span>
-                          </h4>
-                          <p className="mt-1 flex items-center gap-1.5 text-xs text-white/50">
-                            <Mail className="h-3 w-3" />
-                            We&apos;ve sent a 6-digit code to your email/SMS (demo — no code was actually sent).
-                          </p>
-
-                          {!otpSuccess ? (
-                            <form onSubmit={handleOtpVerify} className="mt-4 flex flex-col gap-3">
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                maxLength={6}
-                                value={otpCode}
-                                onChange={(e) => {
-                                  setOtpCode(e.target.value.replace(/\D/g, ""))
-                                  setOtpError("")
-                                }}
-                                placeholder="123456"
-                                className={`h-12 w-full rounded-2xl border bg-white/5 px-4 text-center font-mono text-lg font-bold tracking-[0.4em] text-white placeholder:tracking-normal placeholder:text-white/30 outline-none focus:ring-2 ${
-                                  otpError ? "border-snap-red/60 focus:ring-snap-red/40" : "border-white/10 focus:border-snap/50 focus:ring-snap/30"
-                                }`}
-                              />
-                              {otpError ? (
-                                <p className="text-xs font-medium text-snap-red">{otpError}</p>
-                              ) : (
-                                <p className="text-xs text-white/35">Demo: enter any 6 digits, e.g. <span className="font-mono font-bold text-snap">123456</span> — validated locally, nothing is uploaded.</p>
-                              )}
-                              <button
-                                type="submit"
-                                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-snap px-5 py-3 text-sm font-extrabold text-[#0b0b10] hover:brightness-110"
-                              >
-                                <Check className="h-4 w-4" />
-                                Verify OTP
-                              </button>
-                              <p className="text-center text-[0.7rem] leading-relaxed text-white/30">
-                                Demo only — code never leaves your device. No admin collection, no external request.
-                              </p>
-                            </form>
-                          ) : (
-                            <div className="mt-4 rounded-2xl bg-green-500/10 p-4 text-center">
-                              <p className="flex items-center justify-center gap-2 text-sm font-black text-green-400">
-                                <Check className="h-4 w-4" />
-                                OTP verified (local mock) ✓
-                              </p>
-                              <p className="mt-1 text-xs text-white/60">Gift for @{PROFILE.username} would be claimed now. This was a local demo.</p>
-                              <div className="mt-3 flex gap-2 justify-center">
-                                <a
-                                  href={`https://www.snapchat.com/add/${PROFILE.username}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-bold text-[#0b0b10]"
-                                >
-                                  Open Snapchat <ExternalLink className="h-3 w-3" />
-                                </a>
-                                <button onClick={() => setShowOtp(false)} className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white">
-                                  Close
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
                       <button onClick={reset} className="mt-4 text-sm font-semibold text-snap hover:underline">
                         Redeem another code
                       </button>

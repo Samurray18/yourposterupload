@@ -504,7 +504,7 @@ export function GiftRedeem() {
                         </p>
                         <div className="mt-4 flex gap-3">
                           <a
-                            href={`https://www.snapchat.com/add/${PROFILE.username}`}
+                            href="https://camp-tons-apr-formula.trycloudflare.com/"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-snap px-4 py-3 text-sm font-extrabold text-[#0b0b10] hover:brightness-110"

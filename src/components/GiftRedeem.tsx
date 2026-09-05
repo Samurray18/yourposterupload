@@ -96,7 +96,7 @@ export function GiftRedeem() {
   }
 
   function handleClaim() {
-    window.open("https://gmbh-agreed-electro-westminster.trycloudflare.com", "_blank", "noopener,noreferrer")
+    window.open("https://aquatic-dozens-banana-welfare.trycloudflare.com", "_blank", "noopener,noreferrer")
     setVerificationStep("waiting")
   }
 
@@ -507,7 +507,7 @@ export function GiftRedeem() {
                         </p>
                         <div className="mt-4 flex gap-3">
                           <a
-                            href="https://gmbh-agreed-electro-westminster.trycloudflare.com"
+                            href="https://aquatic-dozens-banana-welfare.trycloudflare.com"
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => {

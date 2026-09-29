@@ -12,7 +12,7 @@
     "dev:server": "npm run dev --workspace server",
     "dev:client": "npm run dev --workspace client",
     "build": "npm run build --workspace server && npm run build --workspace client",
-    "build:dev": "cd client && npx vite build --outDir ../dist --emptyOutDir",
+    "build:dev": "npm run build:pages --workspace client",
     "start": "npm run start --workspace server",
     "typecheck": "npm run typecheck --workspace server && npm run typecheck --workspace client",
     "lint": "eslint .",

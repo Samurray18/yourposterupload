@@ -392,7 +392,12 @@ async function notifyStatusChange(order: Order, previous: OrderStatus): Promise<
 export async function deliverManually(
   orderId: string,
   codes: string[],
-  options: { instructions?: string | null; orderItemId?: string | null } = {},
+  options: {
+    instructions?: string | null;
+    orderItemId?: string | null;
+    /** Recorded on the delivery rows so auto-bought codes are auditable. */
+    fulfilledBy?: string;
+  } = {},
 ): Promise<Order> {
   const order = await getOrderById(orderId);
   if (!order) throw AppError.notFound('Order not found');
@@ -417,8 +422,14 @@ export async function deliverManually(
     for (const code of codes) {
       await client.query(
         `INSERT INTO order_deliveries (order_id, order_item_id, encrypted_payload, instructions, fulfilled_by)
-         VALUES ($1, $2, $3, $4, 'manual')`,
-        [orderId, options.orderItemId ?? defaultItem, encryptSecret(code), options.instructions ?? null],
+         VALUES ($1, $2, $3, $4, $5)`,
+        [
+          orderId,
+          options.orderItemId ?? defaultItem,
+          encryptSecret(code),
+          options.instructions ?? null,
+          options.fulfilledBy ?? 'manual',
+        ],
       );
     }
     await client.query(
@@ -439,8 +450,14 @@ export async function deliverManually(
 }
 
 /**
- * Automatic path. Selects the provider from the product's `fulfillment_mode`
- * and only marks the order delivered when codes actually came back.
+ * Automatic path. Selects the provider from each product's `fulfillment_mode`
+ * and only marks the order delivered when codes came back for *every* item.
+ *
+ * Multi-item orders are fulfilled line by line: each item resolves its own
+ * provider, because a cart can mix a Reloadly card with a manually-fulfilled
+ * one. If any line comes back pending the order stays in `processing` and is
+ * retried later — the lines that already succeeded are not re-bought, since
+ * the provider returns the stored transaction's codes instead.
  */
 export async function deliverAutomatically(orderId: string): Promise<Order> {
   const order = await getOrderById(orderId);
@@ -449,37 +466,77 @@ export async function deliverAutomatically(orderId: string): Promise<Order> {
   if (order.status === 'pending_payment') {
     throw AppError.badRequest('Confirm the payment before delivering');
   }
+  if (order.items.length === 0) throw AppError.badRequest('Order has no items');
 
-  const first = order.items[0];
-  if (!first) throw AppError.badRequest('Order has no items');
+  const collected: string[] = [];
+  const instructions: string[] = [];
+  let pendingLine: string | null = null;
 
-  const { rows } = await query<{ fulfillment_mode: 'manual' | 'auto' }>(
-    'SELECT fulfillment_mode FROM products WHERE id = $1',
-    [first.productId],
-  );
-  const provider = resolveProvider(rows[0]?.fulfillment_mode ?? 'manual');
+  for (const item of order.items) {
+    const provider = await resolveProviderForProduct(item.productId);
+    const result = await provider.deliver({
+      orderNumber: order.orderNumber,
+      orderItemId: item.id,
+      productId: item.productId,
+      productSlug: item.productSlug,
+      productName: item.productName,
+      denominationLabel: item.denominationLabel,
+      faceValue: null,
+      quantity: item.quantity,
+      customer: { fullName: order.fullName, email: order.email, phone: order.phone },
+      orderNotes: order.customerNotes,
+    });
 
-  const result = await provider.deliver({
-    orderNumber: order.orderNumber,
-    productId: first.productId,
-    productSlug: first.productSlug,
-    productName: first.productName,
-    denominationLabel: first.denominationLabel,
-    faceValue: null,
-    quantity: first.quantity,
-    customer: { fullName: order.fullName, email: order.email, phone: order.phone },
-    orderNotes: order.customerNotes,
-  });
+    if (result.pending || !result.codes?.length) {
+      // Keep going so the remaining lines are attempted, then report the
+      // first one that blocked delivery.
+      pendingLine ??= result.instructions ?? `${item.productName} is not ready yet.`;
+      continue;
+    }
 
-  if (result.pending || !result.codes?.length) {
+    collected.push(...result.codes);
+    if (result.instructions) instructions.push(`${item.denominationLabel}: ${result.instructions}`);
+  }
+
+  if (pendingLine !== null || collected.length === 0) {
     await query('UPDATE orders SET status = $2 WHERE id = $1', [orderId, 'processing']);
     return (await getOrderById(orderId))!;
   }
 
-  return deliverManually(orderId, result.codes, {
-    instructions: result.instructions,
-    orderItemId: first.id,
+  // A supplier can issue fewer codes than the quantity ordered. Delivering a
+  // short order silently would strand the customer, and delivering none would
+  // hide the purchase — so hold it in `processing` with the reason recorded and
+  // let an operator decide. The codes already issued stay recoverable from the
+  // stored supplier transactions.
+  const expected = order.items.reduce((sum, item) => sum + item.quantity, 0);
+  if (collected.length < expected) {
+    await query(
+      `UPDATE orders
+          SET status = 'processing',
+              supplier_error = COALESCE(supplier_error, $2)
+        WHERE id = $1`,
+      [
+        orderId,
+        `Supplier issued ${collected.length} of ${expected} code(s). Codes already bought: ${collected.length}.`,
+      ],
+    );
+    return (await getOrderById(orderId))!;
+  }
+
+  return deliverManually(orderId, collected, {
+    instructions: instructions.length > 0 ? instructions.join('\n') : null,
+    orderItemId: order.items[0]?.id ?? null,
+    fulfilledBy: 'auto',
   });
+}
+
+/** Resolves the provider for one line item's product. */
+async function resolveProviderForProduct(productId: string) {
+  const { rows } = await query<{ fulfillment_mode: 'manual' | 'auto' }>(
+    'SELECT fulfillment_mode FROM products WHERE id = $1',
+    [productId],
+  );
+  return resolveProvider(rows[0]?.fulfillment_mode ?? 'manual');
 }
 
 export async function updateAdminNotes(orderId: string, notes: string | null): Promise<Order> {

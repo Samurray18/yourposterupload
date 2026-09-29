@@ -3,10 +3,9 @@
  * =======================
  *
  * Everything the app knows about "how do we obtain a code for this order" lives
- * behind `FulfillmentProvider`. Today the only implementation is
- * `ManualFulfillmentProvider` (an admin pastes the code in). When a real
- * distributor API is available, implement the same interface and register it
- * below — no route, service or frontend code needs to change.
+ * behind `FulfillmentProvider`. Two implementations are registered:
+ * `ManualFulfillmentProvider` (an admin pastes the code in) and
+ * `ReloadlyFulfillmentProvider` (we buy the card from Reloadly).
  *
  * A product carries `fulfillment_mode` ('manual' | 'auto'), which selects the
  * provider. `resolveProvider` is the single place that maps mode -> provider, so
@@ -16,6 +15,13 @@ import type { FulfillmentMode } from '../types.js';
 
 export interface FulfillmentRequest {
   orderNumber: string;
+  /**
+   * The order line being fulfilled. Automatic suppliers need this: an order can
+   * hold several items, each bought separately, and the supplier transaction
+   * must be recorded against the right line or a repeat run would buy the
+   * first card twice.
+   */
+  orderItemId: string | null;
   productId: string;
   productSlug: string;
   productName: string;
@@ -56,11 +62,11 @@ export interface FulfillmentProvider {
 }
 
 import { manualFulfillmentProvider } from './manual.js';
-import { distributorApiFulfillmentProvider } from './distributorApi.js';
+import { reloadlyFulfillmentProvider } from './reloadly/provider.js';
 
 const providers: Record<FulfillmentMode, FulfillmentProvider> = {
   manual: manualFulfillmentProvider,
-  auto: distributorApiFulfillmentProvider,
+  auto: reloadlyFulfillmentProvider,
 };
 
 export function resolveProvider(mode: FulfillmentMode): FulfillmentProvider {

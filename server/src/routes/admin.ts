@@ -35,6 +35,13 @@ import {
 import { getStats } from '../services/stats.js';
 import { getSettings, updateSettings } from '../services/settings.js';
 import { allProviders } from '../fulfillment/FulfillmentProvider.js';
+import { reloadlyStatus } from '../config.js';
+import { getBalance, listProducts as listReloadlyProducts } from '../fulfillment/reloadly/api.js';
+import { denominationsFor } from '../fulfillment/reloadly/pricing.js';
+import {
+  getSettlementSummary,
+  importReloadlyCatalogue,
+} from '../fulfillment/reloadly/import.js';
 import { ORDER_STATUSES } from '../types.js';
 import { wilayas } from '../services/format.js';
 import { uploadsDir } from '../lib/paths.js';
@@ -444,6 +451,114 @@ adminRouter.get(
         configured: provider.supports({ slug: '*', categorySlug: '*' }),
       })),
     });
+  }),
+);
+
+// ---------------------------------------------------------------------------
+// Reloadly
+// ---------------------------------------------------------------------------
+
+/** Configuration state, without ever exposing the client secret. */
+adminRouter.get('/reloadly/status', asyncHandler(async (_req, res) => {
+  const status = reloadlyStatus();
+  const { rows } = await query<{ products: string; denominations: string }>(
+    `SELECT count(*) FILTER (WHERE fulfillment_mode = 'auto')::text  AS products,
+            count(*) FILTER (WHERE supplier = 'reloadly')::text      AS denominations
+       FROM products p
+       LEFT JOIN product_denominations d ON d.product_id = p.id`,
+  );
+  res.json({ ...status, imported: rows[0] ?? { products: '0', denominations: '0' } });
+}));
+
+/** Live account balance. Only callable when the integration is configured. */
+adminRouter.get('/reloadly/balance', asyncHandler(async (_req, res) => {
+  const status = reloadlyStatus();
+  if (!status.configured) {
+    throw AppError.badRequest(`Reloadly is not configured: missing ${status.missing.join(', ')}`);
+  }
+  const [balance, settlement] = await Promise.all([getBalance(), getSettlementSummary()]);
+  res.json({ balance, settlement });
+}));
+
+const reloadlyProductsQuerySchema = z.object({
+  countryCode: z.string().length(2).optional(),
+  search: z.string().max(80).optional(),
+  page: z.coerce.number().int().min(0).max(50).default(0),
+  size: z.coerce.number().int().min(1).max(100).default(25),
+});
+type ReloadlyProductsQuery = z.infer<typeof reloadlyProductsQuerySchema>;
+
+/**
+ * Browse upstream products without writing anything, so the admin can check
+ * the connection and see what a sync would bring in.
+ */
+adminRouter.get(
+  '/reloadly/products',
+  validate(reloadlyProductsQuerySchema, 'query'),
+  asyncHandler(async (req, res) => {
+    const status = reloadlyStatus();
+    if (!status.configured) {
+      throw AppError.badRequest(`Reloadly is not configured: missing ${status.missing.join(', ')}`);
+    }
+    const q = validated<ReloadlyProductsQuery>(req);
+
+    const result = await listReloadlyProducts({
+      countryCode: q.countryCode,
+      search: q.search,
+      page: q.page,
+      size: q.size,
+      includeFixed: true,
+      includeRange: true,
+    });
+
+    res.json({
+      totalElements: result.totalElements,
+      totalPages: result.totalPages,
+      page: result.page,
+      products: result.products.map((product) => ({
+        productId: product.productId,
+        productName: product.productName,
+        brand: product.brand.brandName ?? null,
+        country: product.country.isoName ?? null,
+        currency: product.recipientCurrencyCode,
+        denominationType: product.denominationType,
+        fixedRecipientDenominations: product.fixedRecipientDenominations,
+        minRecipientDenomination: product.minRecipientDenomination ?? null,
+        maxRecipientDenomination: product.maxRecipientDenomination ?? null,
+        discountPercentage: product.discountPercentage,
+        senderFee: product.senderFee,
+        redeemInstruction: product.redeemInstruction?.concise ?? null,
+        denominations: denominationsFor(product).map((d) => ({
+          amount: d.amount,
+          label: d.label,
+          priceDzd: d.price.priceDzd,
+          costDzd: d.price.costDzd,
+        })),
+      })),
+    });
+  }),
+);
+
+const reloadlyImportSchema = z.object({
+  countryCode: z.string().length(2).optional(),
+  search: z.string().max(80).optional(),
+  categoryId: z.coerce.number().int().positive().optional(),
+  minDenominations: z.coerce.number().int().min(1).max(20).optional(),
+  maxPages: z.coerce.number().int().min(1).max(50).optional(),
+});
+type ReloadlyImportInput = z.infer<typeof reloadlyImportSchema>;
+
+/** Import or refresh the catalogue from Reloadly. */
+adminRouter.post(
+  '/reloadly/import',
+  validate(reloadlyImportSchema),
+  asyncHandler(async (req, res) => {
+    const status = reloadlyStatus();
+    if (!status.configured) {
+      throw AppError.badRequest(`Reloadly is not configured: missing ${status.missing.join(', ')}`);
+    }
+    const summary = await importReloadlyCatalogue(req.body as ReloadlyImportInput);
+    res.json({ summary });
   }),
 );
 

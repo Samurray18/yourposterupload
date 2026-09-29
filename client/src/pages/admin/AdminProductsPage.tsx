@@ -4,6 +4,7 @@ import type { Category, Product, StockStatus } from '../../lib/types';
 import { ProductImage } from '../../components/ProductImage';
 import { Alert, DeliveryBadge, EmptyState } from '../../components/ui';
 import { DELIVERY_SPEEDS } from '../../lib/types';
+import { ReloadlyPanel } from './ReloadlyPanel';
 
 export function AdminProductsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -76,6 +77,8 @@ export function AdminProductsPage() {
           <Alert tone="error">{error}</Alert>
         </div>
       )}
+
+      <ReloadlyPanel onImported={() => void load()} />
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <input

@@ -238,5 +238,25 @@ export const api = {
         method: 'PATCH',
         body: { adminNotes },
       }),
+
+    /* ------------------------------------------------------------- reloadly */
+    reloadlyStatus: () =>
+      request<import('./types').ReloadlyStatus>('/api/admin/reloadly/status'),
+
+    reloadlyBalance: () =>
+      request<import('./types').ReloadlyBalanceResponse>('/api/admin/reloadly/balance'),
+
+    /** Preview upstream products without writing anything. */
+    reloadlyProducts: (params: { countryCode?: string; search?: string; page?: number; size?: number } = {}) =>
+      request<import('./types').ReloadlyProductListing>(
+        `/api/admin/reloadly/products${queryString({ ...params })}`,
+      ),
+
+    /** Import or refresh the catalogue. */
+    reloadlyImport: (body: { countryCode?: string; search?: string; maxPages?: number } = {}) =>
+      request<{ summary: import('./types').ReloadlyImportSummary }>('/api/admin/reloadly/import', {
+        method: 'POST',
+        body,
+      }),
   },
 };

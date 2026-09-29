@@ -35,6 +35,9 @@ const schema = z.object({
   ADMIN_EMAIL: z.string().email(),
   ADMIN_PASSWORD: z.string().min(8, 'ADMIN_PASSWORD must be at least 8 characters'),
 
+  /** Shown to customers and sent as the Reloadly sender name. */
+  STORE_NAME: z.string().min(1).default('DZ Gift Cards'),
+
   SMTP_HOST: z.string().optional().default(''),
   SMTP_PORT: z.coerce.number().int().positive().default(587),
   SMTP_SECURE: boolFromString,
@@ -43,6 +46,26 @@ const schema = z.object({
   MAIL_FROM: z.string().default('DZ Gift Cards <no-reply@example.com>'),
 
   MAX_UPLOAD_MB: z.coerce.number().positive().default(5),
+
+  /**
+   * Reloadly is optional: the storefront still works on manual fulfillment
+   * alone. Everything here is only required when RELOADLY_ENABLED=true, so the
+   * schema stays permissive and `reloadlyStatus()` reports what is missing
+   * instead of crashing the API at boot.
+   */
+  RELOADLY_ENABLED: boolFromString,
+  RELOADLY_ENVIRONMENT: z.enum(['sandbox', 'production']).default('sandbox'),
+  RELOADLY_CLIENT_ID: z.string().optional().default(''),
+  RELOADLY_CLIENT_SECRET: z.string().optional().default(''),
+  /** Reloadly requires the audience to be the gift-cards audience. */
+  RELOADLY_AUDIENCE: z.string().default('https://giftcards.reloadly.com'),
+  /** DZD per one unit of `RELOADLY_SETTLEMENT_CURRENCY`. */
+  RELOADLY_DZD_RATE: z.coerce.number().positive().default(150),
+  /** Currency Reloadly charges the account in; used for the cost breakdown. */
+  RELOADLY_SETTLEMENT_CURRENCY: z.string().default('USD'),
+  /** Percentage added on top of the supplier cost to price imported cards. */
+  RELOADLY_MARKUP_PERCENT: z.coerce.number().min(0).max(1000).default(8),
+  RELOADLY_TIMEOUT_MS: z.coerce.number().int().positive().default(20_000),
 });
 
 const parsed = schema.safeParse(process.env);
@@ -71,6 +94,7 @@ export const config = {
   codesEncryptionKey: env.CODES_ENCRYPTION_KEY,
   jwtSecret: env.JWT_SECRET,
   admin: { email: env.ADMIN_EMAIL.toLowerCase(), password: env.ADMIN_PASSWORD },
+  storeName: env.STORE_NAME,
   smtp: {
     host: env.SMTP_HOST,
     port: env.SMTP_PORT,
@@ -80,6 +104,47 @@ export const config = {
     from: env.MAIL_FROM,
   },
   maxUploadBytes: Math.round(env.MAX_UPLOAD_MB * 1024 * 1024),
+
+  reloadly: {
+    enabled: env.RELOADLY_ENABLED,
+    environment: env.RELOADLY_ENVIRONMENT,
+    isProduction: env.RELOADLY_ENVIRONMENT === 'production',
+    clientId: env.RELOADLY_CLIENT_ID,
+    clientSecret: env.RELOADLY_CLIENT_SECRET,
+    audience: env.RELOADLY_AUDIENCE,
+    baseUrl:
+      env.RELOADLY_ENVIRONMENT === 'production'
+        ? 'https://giftcards.reloadly.com'
+        : 'https://giftcards-sandbox.reloadly.com',
+    dzdRate: env.RELOADLY_DZD_RATE,
+    settlementCurrency: env.RELOADLY_SETTLEMENT_CURRENCY,
+    markupPercent: env.RELOADLY_MARKUP_PERCENT,
+    timeoutMs: env.RELOADLY_TIMEOUT_MS,
+  },
 } as const;
+
+/**
+ * Why the Reloadly integration is or is not usable. Exposed to the admin
+ * dashboard so a misconfigured environment is obvious instead of showing up
+ * as orders stuck in `processing`.
+ */
+export function reloadlyStatus(): {
+  enabled: boolean;
+  configured: boolean;
+  environment: string;
+  baseUrl: string;
+  missing: string[];
+} {
+  const missing: string[] = [];
+  if (!config.reloadly.clientId) missing.push('RELOADLY_CLIENT_ID');
+  if (!config.reloadly.clientSecret) missing.push('RELOADLY_CLIENT_SECRET');
+  return {
+    enabled: config.reloadly.enabled,
+    configured: missing.length === 0,
+    environment: config.reloadly.environment,
+    baseUrl: config.reloadly.baseUrl,
+    missing,
+  };
+}
 
 export type AppConfig = typeof config;

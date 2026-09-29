@@ -125,6 +125,71 @@ CREATE TABLE IF NOT EXISTS settings (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- ============================================================================
+-- Reloadly supplier mapping
+-- ----------------------------------------------------------------------------
+-- A denomination is only auto-fulfillable when it points at a Reloadly product
+-- and a concrete amount. `supplier_*` stays NULL for manual denominations, so
+-- the manual path keeps working untouched.
+-- ============================================================================
+
+ALTER TABLE product_denominations
+  ADD COLUMN IF NOT EXISTS supplier            TEXT,
+  ADD COLUMN IF NOT EXISTS supplier_product_id INTEGER,
+  ADD COLUMN IF NOT EXISTS supplier_amount     NUMERIC(12, 2),
+  ADD COLUMN IF NOT EXISTS supplier_currency   TEXT,
+  ADD COLUMN IF NOT EXISTS supplier_cost_dzd   NUMERIC(12, 2);
+
+CREATE INDEX IF NOT EXISTS denominations_supplier_idx
+  ON product_denominations (supplier, supplier_product_id)
+  WHERE supplier IS NOT NULL;
+
+-- Catalogue sync upserts on (product_id, label). Databases that predate the
+-- Reloadly import can contain duplicates, so keep the earliest row per pair
+-- before the constraint is enforced.
+DELETE FROM product_denominations a
+      USING product_denominations b
+      WHERE a.product_id = b.product_id
+        AND a.label = b.label
+        AND a.created_at > b.created_at;
+
+CREATE UNIQUE INDEX IF NOT EXISTS denominations_product_label_uniq
+  ON product_denominations (product_id, label);
+
+-- Per-order supplier bookkeeping. `orders.order_number` is what we send as
+-- Reloadly's `customIdentifier`, so it doubles as the reconciliation key.
+--
+-- One row per *purchased card*: an order can contain several items and each is
+-- bought separately, so a single transaction id on the order would be
+-- overwritten by the second purchase and the first card would be lost.
+CREATE TABLE IF NOT EXISTS order_supplier_transactions (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id       UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  order_item_id  UUID REFERENCES order_items(id) ON DELETE SET NULL,
+  supplier       TEXT NOT NULL DEFAULT 'reloadly',
+  transaction_id TEXT NOT NULL,
+  status         TEXT,
+  unit_amount    NUMERIC(12, 2),
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- A Reloadly transaction id identifies exactly one purchase, so this is also
+-- the guard against recording the same upstream order twice.
+CREATE UNIQUE INDEX IF NOT EXISTS order_supplier_txn_uniq
+  ON order_supplier_transactions (supplier, transaction_id);
+
+-- Lookup path used to decide whether an order item has already been bought.
+CREATE INDEX IF NOT EXISTS order_supplier_txn_item_idx
+  ON order_supplier_transactions (order_id, order_item_id);
+
+-- Exclusive claim so two concurrent fulfilment attempts for one order cannot
+-- both spend money. Cleared as soon as the purchase is recorded; a claim
+-- older than the provider's TTL is treated as abandoned.
+ALTER TABLE orders
+  ADD COLUMN IF NOT EXISTS supplier_claim_token TEXT,
+  ADD COLUMN IF NOT EXISTS supplier_claimed_at  TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS supplier_error       TEXT;
+
 -- Keep products.updated_at honest without relying on every writer to set it.
 CREATE OR REPLACE FUNCTION touch_updated_at() RETURNS TRIGGER AS $$
 BEGIN

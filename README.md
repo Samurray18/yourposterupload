@@ -19,8 +19,7 @@ stock and orders from a password-protected admin dashboard.
 - [Local development without Docker](#local-development-without-docker)
 - [Environment variables](#environment-variables)
 - [How fulfilment works](#how-fulfilment-works)
-- [Payments](#payments)
-- [Admin guide](#admin-guide)
+- [Payments](#payments)- [Admin guide](#admin-guide)
 - [Scripts](#scripts)
 - [Project layout](#project-layout)
 - [Security notes](#security-notes)
@@ -59,8 +58,10 @@ stock and orders from a password-protected admin dashboard.
 - Dashboard with revenue, order counts, low-stock alerts and recent orders.
 - Product management: create, edit, activate/deactivate, feature, and add or
   remove denominations.
-- Inline price editing, per-denomination stock status, and stock counters for
-  distributor-managed products.
+- Inline price editing and per-denomination stock status.
+- Reloadly integration panel: connection status, live balance, catalogue preview
+  and one-click import, with per-denomination DZD pricing derived from supplier
+  cost.
 - Order management: filter by status and payment method, mark payments received,
   add internal notes, and deliver one or more codes.
 - Product image upload, served from the API so no object storage is required.
@@ -106,7 +107,7 @@ yourposterupload/
     ├── scripts/       # Build-time helpers
     ├── src/
     │   ├── db/        # Schema, idempotent migration runner, seed data
-    │   ├── fulfillment/ # Provider interface + manual/distributor providers
+    │       ├── fulfillment/ # Provider interface, manual provider, reloadly/ integration
     │   ├── lib/       # Crypto, IDs, paths
     │   ├── middleware/ # Auth, error handling
     │   ├── routes/    # public, orders, admin
@@ -126,10 +127,10 @@ AES-256-GCM under a 32-byte key from `CODES_ENCRYPTION_KEY`. The payload is
 can still read old rows. GCM is authenticated, so a tampered row fails loudly
 rather than returning garbage.
 
-**Fulfilment is pluggable.** `FulfillmentProvider` is an interface with a
-`manual` implementation (an admin pastes the code) and a `distributor` stub that
-calls a third-party supplier API. Adding another supplier means implementing one
-interface — no changes to order or route code.
+**Fulfilment is pluggable.** `FulfillmentProvider` is an interface with two
+implementations: `manual` (an admin pastes the code) and `reloadly` (we buy the
+card from Reloadly, including catalogue import and pricing). Adding another
+supplier means implementing one interface — no changes to order or route code.
 
 **Migrations are idempotent.** `schema.sql` uses `CREATE ... IF NOT EXISTS`, and
 the API applies it on boot. A fresh database volume and an existing one follow
@@ -239,6 +240,15 @@ Compose, the values are passed through from the same file.
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` / `SMTP_USER` / `SMTP_PASS` | no | Leave `SMTP_HOST` empty to log emails to the console. |
 | `MAIL_FROM` | no | Sender shown on transactional emails. |
 | `MAX_UPLOAD_MB` | no | Admin image upload limit, default `5`. |
+| `STORE_NAME` | no | Store name shown to customers and sent as the Reloadly sender. |
+| `RELOADLY_ENABLED` | no | Turns automatic fulfilment on, default `false`. |
+| `RELOADLY_ENVIRONMENT` | no | `sandbox` or `production`; picks the API host. |
+| `RELOADLY_CLIENT_ID` / `RELOADLY_CLIENT_SECRET` | Reloadly | Sandbox or production credentials — see [Reloadly](#reloadly-automatic-fulfilment). |
+| `RELOADLY_AUDIENCE` | no | Keep `https://giftcards.reloadly.com` for the gift-cards API. |
+| `RELOADLY_DZD_RATE` | no | DZD per 1 unit of the settlement currency, default `150`. |
+| `RELOADLY_SETTLEMENT_CURRENCY` | no | Currency Reloadly charges the account in, default `USD`. |
+| `RELOADLY_MARKUP_PERCENT` | no | Margin added to imported prices, default `8`. |
+| `RELOADLY_TIMEOUT_MS` | no | Per-request timeout, default `20000`. |
 
 > If your database password contains characters that are special in a URL
 > (`@`, `:`, `/`, `#`, `?`), percent-encode them in `DATABASE_URL`, otherwise
@@ -270,14 +280,121 @@ Each transition is validated server-side, so an order cannot jump from
 Stock status is set explicitly by an operator on each denomination
 (`in_stock` / `out_of_stock`) rather than derived from a counter, so the
 dashboard can show low-stock warnings and the catalogue can hide a product
-without a background job that could drift out of sync. Distributor-managed
-products track an unclaimed-codes count instead.
+without a background job that could drift out of sync. Cards bought from
+Reloadly are not stock-tracked: availability is whatever the supplier reports,
+so imported products stay active and a failed purchase surfaces as an order in
+`processing` rather than a "sold out" storefront.
 
-### Adding a distributor API
+### Reloadly (automatic fulfilment)
 
-`server/src/fulfillment/distributorApi.ts` is a stub. Implement
-`FulfillmentProvider`, then register it in `FulfillmentProvider.ts` and set the
-product's `fulfillment_mode` to `auto`.
+Reloadly is the built-in automatic supplier. It is **off by default** — the
+store runs entirely on manual fulfilment until you configure it.
+
+#### 1. Get sandbox credentials
+
+In the Reloadly dashboard, switch the environment toggle to **TEST (sandbox)**
+and copy the client id and secret from the API credentials page.
+
+> Credentials are tied to the mode the dashboard was showing when you copied
+> them. Secrets copied while the dashboard was on LIVE are rejected by the
+> sandbox API with `INVALID_CREDENTIALS`, and vice versa. If authentication
+> fails, toggle the dashboard and re-copy rather than debugging the app.
+
+#### 2. Configure the environment
+
+```bash
+RELOADLY_ENABLED=true
+RELOADLY_ENVIRONMENT=sandbox        # "sandbox" or "production"
+RELOADLY_CLIENT_ID=your-client-id
+RELOADLY_CLIENT_SECRET=your-client-secret
+RELOADLY_DZD_RATE=150               # DZD per 1 USD
+RELOADLY_SETTLEMENT_CURRENCY=USD
+RELOADLY_MARKUP_PERCENT=8
+```
+
+Restart the server and confirm the token exchange works — the admin dashboard
+shows the environment and base URL under **Products → Reloadly**, and
+**Check balance** performs a live authenticated call.
+
+#### 3. Import the catalogue
+
+**Import catalogue** in the admin panel, or `POST /api/admin/reloadly/import`.
+The importer walks the upstream product pages and, for each product, creates or
+updates a local product plus one denomination per orderable amount. Re-running
+is safe: products are matched on a slug derived from the Reloadly product id
+and denominations are upserted on `(product_id, label)`, so a sync never
+duplicates rows.
+
+**Preview** shows what a sync would bring in, including the computed DZD price
+per denomination, without writing anything.
+
+#### Pricing
+
+The store sells in DZD; Reloadly charges the account in its settlement
+currency. Three values, all applied in `reloadly/pricing.ts`:
+
+```
+supplier cost = face value × (1 − discount%) + sender fee   (card currency)
+cost in DZD   = supplier cost × RELOADLY_DZD_RATE
+shelf price   = cost in DZD × (1 + RELOADLY_MARKUP_PERCENT / 100)
+```
+
+Costs are rounded up, so a card is never listed at or below what you pay.
+Imported denominations always carry whole-dinar prices. Set
+`RELOADLY_DZD_RATE` from your actual bank rate and review the margin before
+going live.
+
+#### How an order is fulfilled
+
+Products imported from Reloadly have `fulfillment_mode = 'auto'`. When an
+operator triggers automatic delivery, the `reloadly` provider:
+
+1. looks up whether this order *line* was already purchased;
+2. `POST /orders` with the order number as `customIdentifier`;
+3. records the returned `transactionId` in `order_supplier_transactions`
+   against that line, before anything is shown to the customer;
+4. reads the codes from the `smiles` array in the order response, falling back
+   to `GET /transactions/{id}/code` if the card is still processing;
+5. hands the codes to the normal delivery path, which encrypts and emails them.
+
+Cards that carry a PIN are delivered as `CODE (PIN: …)`.
+
+**Safety properties worth knowing:**
+
+- `POST /orders` is **never retried automatically**. A timeout may have been
+  accepted upstream, and repeating it would spend money twice. The stored
+  `transactionId` plus the `customIdentifier` sent upstream is what makes an
+  ambiguous outcome recoverable.
+- A repeat call for a line that already has a recorded transaction returns the
+  stored codes instead of buying a second card, so retries and double-clicks
+  are safe. Transactions are recorded per line, not per order, so the second
+  item of a multi-item order is tracked separately from the first.
+- Before buying, the provider takes an exclusive **claim** on the order
+  (`supplier_claim_token`). A double-clicked button, or the admin panel and a
+  scheduled job firing together, therefore cannot both spend money: the loser
+  reports the order as still in progress. A claim older than 10 minutes is
+  treated as abandoned, so a process that dies mid-purchase does not block the
+  order forever.
+- Upstream failures never throw. The order stays in `processing` and the reason
+  is written to `orders.supplier_error` for an operator to see.
+- Multi-item orders are fulfilled line by line, each line resolving its own
+  provider, so a cart can mix imported and manual products. The order is only
+  marked delivered when every line has codes.
+
+#### Rate limits
+
+Requests use bounded retries with jittered backoff for `429` and `5xx`,
+honouring the upstream signal. Checked `GET` calls are retried; order placement
+is not. The access token is cached process-wide and refreshed 60 seconds before
+expiry, with concurrent callers sharing a single refresh.
+
+### Adding another distributor
+
+Implement `FulfillmentProvider` in `server/src/fulfillment/`, then register it
+in `FulfillmentProvider.ts`. The `reloadly/` directory is laid out as a
+reference: `client.ts` (auth, retries), `api.ts` (typed endpoints),
+`pricing.ts` (money), `import.ts` (catalogue sync), `provider.ts` (the
+`FulfillmentProvider` implementation).
 
 ---
 
@@ -357,10 +474,19 @@ Run from the repository root.
 - Admin passwords are read from the environment and compared in constant time.
   If you need multiple staff accounts with hashed passwords, move them into a
   `staff_users` table and compare with argon2 or bcrypt.
+- `RELOADLY_CLIENT_SECRET` is only ever read server-side. The admin status
+  endpoint reports *which* variables are missing, never their values.
+- Money handling: `POST /orders` is never retried automatically, because a
+  network timeout may still have been accepted upstream. Each purchase stores
+  its `transactionId` before the customer sees anything, and that stored id is
+  what a retry reads, so a repeated delivery attempt cannot buy a second card.
+  Rotate the Reloadly secret if it is ever pasted into a chat, an issue tracker
+  or a log.
 
 **Before going live:** change `ADMIN_PASSWORD`, set real `CODES_ENCRYPTION_KEY`
-and `JWT_SECRET` values, and put the site behind HTTPS so the `Secure` cookie
-flag is active.
+and `JWT_SECRET` values, put the site behind HTTPS so the `Secure` cookie flag
+is active, and review `RELOADLY_DZD_RATE` / `RELOADLY_MARKUP_PERCENT` against
+your real costs.
 
 ---
 

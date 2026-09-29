@@ -156,3 +156,67 @@ export interface DashboardStats {
   }>;
   revenueByDay: Array<{ day: string; revenueDzd: number; orders: number }>;
 }
+
+/* ------------------------------------------------------------------ reloadly */
+
+export interface ReloadlyStatus {
+  enabled: boolean;
+  configured: boolean;
+  environment: 'sandbox' | 'production';
+  baseUrl: string;
+  /** Env var names that still need a value. */
+  missing: string[];
+  imported: { products: string; denominations: string };
+}
+
+export interface ReloadlySettlement {
+  environment: string;
+  baseUrl: string;
+  dzdRate: number;
+  markupPercent: number;
+}
+
+export interface ReloadlyBalanceResponse {
+  balance: { currencyCode?: string; balance?: number; usdBalance?: number };
+  settlement: ReloadlySettlement;
+}
+
+export interface ReloadlyDenominationPreview {
+  amount: number;
+  label: string;
+  priceDzd: number;
+  costDzd: number;
+}
+
+export interface ReloadlyProductPreview {
+  productId: number;
+  productName: string;
+  brand: string | null;
+  country: string | null;
+  currency: string;
+  denominationType: 'FIXED' | 'RANGE';
+  fixedRecipientDenominations: number[];
+  minRecipientDenomination: number | null;
+  maxRecipientDenomination: number | null;
+  discountPercentage: number;
+  senderFee: number;
+  redeemInstruction: string | null;
+  denominations: ReloadlyDenominationPreview[];
+}
+
+export interface ReloadlyProductListing {
+  totalElements: number | null;
+  totalPages: number | null;
+  page: number;
+  products: ReloadlyProductPreview[];
+}
+
+export interface ReloadlyImportSummary {
+  productsSeen: number;
+  productsCreated: number;
+  productsUpdated: number;
+  productsSkipped: number;
+  denominationsWritten: number;
+  /** Names of products skipped for having no usable denomination. */
+  skippedNames: string[];
+}
